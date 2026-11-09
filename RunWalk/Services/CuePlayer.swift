@@ -69,6 +69,19 @@ final class CuePlayer: NSObject {
         scheduleRelease()
     }
 
+    /// A one-off line with a beep and a tap: an other run's start, pause and time checks.
+    func announce(_ line: String) {
+        guard options.voice || options.beeps || options.haptics else { return }
+        activate()
+        if options.beeps, let longBeep {
+            longBeep.currentTime = 0
+            longBeep.play()
+        }
+        if options.haptics { vibrate(.tap) }
+        if options.voice { speak(line, interrupt: true, afterBeep: options.beeps && longBeep != nil) }
+        scheduleRelease()
+    }
+
     // MARK: - Speech
 
     private func speak(_ line: String, interrupt: Bool, afterBeep: Bool) {

@@ -20,16 +20,19 @@ struct RunLiveActivity: Widget {
                         .lineLimit(1)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    TimeLeft(state: context.state).font(.title3.monospacedDigit().weight(.semibold))
+                    TimeLeft(attributes: context.attributes, state: context.state)
+                        .font(.title3.monospacedDigit().weight(.semibold))
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    WorkoutBar(attributes: context.attributes, state: context.state)
+                    if !context.attributes.isFree {
+                        WorkoutBar(attributes: context.attributes, state: context.state)
+                    }
                 }
             } compactLeading: {
                 Image(systemName: context.state.pausedRemaining == nil ? "figure.run" : "pause.fill")
                     .foregroundStyle(WidgetColors.run)
             } compactTrailing: {
-                TimeLeft(state: context.state)
+                TimeLeft(attributes: context.attributes, state: context.state)
                     .monospacedDigit()
                     .frame(maxWidth: 52)
             } minimal: {
@@ -44,6 +47,7 @@ private struct LockScreenView: View {
     /// Always-on / dimmed lock screen: iOS blanks timer seconds ("29:--"), so show the finish time instead.
     @Environment(\.isLuminanceReduced) private var dimmed
     private var running: Bool { context.state.pausedRemaining == nil }
+    private var free: Bool { context.attributes.isFree }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -58,32 +62,37 @@ private struct LockScreenView: View {
                 VStack(alignment: .trailing, spacing: 0) {
                     Group {
                         if dimmed && running {
-                            Text(context.state.end, style: .time)
+                            Text(free ? context.state.start : context.state.end, style: .time)
                         } else {
-                            TimeLeft(state: context.state)
+                            TimeLeft(attributes: context.attributes, state: context.state)
                         }
                     }
                     .font(.system(size: 30, weight: .bold, design: .rounded).monospacedDigit())
                     .multilineTextAlignment(.trailing)
-                    Text(dimmed && running ? "finishes" : "left").font(.caption).foregroundStyle(
-                        .white.opacity(0.7))
+                    Text(caption).font(.caption).foregroundStyle(.white.opacity(0.7))
                 }
             }
-            WorkoutBar(attributes: context.attributes, state: context.state)
+            if !free { WorkoutBar(attributes: context.attributes, state: context.state) }
         }
         .foregroundStyle(.white)
     }
+
+    private var caption: String {
+        if dimmed && running { return free ? "started" : "finishes" }
+        return free ? "so far" : "left"
+    }
 }
 
-/// Time left in the workout: a live countdown while running, a fixed value while paused.
+/// Time left in the workout (an other run: time so far): live while running, fixed while paused.
 private struct TimeLeft: View {
+    let attributes: RunActivityAttributes
     let state: RunActivityAttributes.ContentState
 
     var body: some View {
-        if let remaining = state.pausedRemaining {
-            Text(Format.clock(remaining))
+        if let fixed = state.pausedRemaining {
+            Text(Format.clock(fixed))
         } else {
-            Text(timerInterval: state.start...state.end, countsDown: true)
+            Text(timerInterval: state.start...state.end, countsDown: !attributes.isFree)
         }
     }
 }

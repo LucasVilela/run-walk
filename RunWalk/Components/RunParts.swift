@@ -104,3 +104,33 @@ struct CheckInFields: View {
         .accessibilityAddTraits(on ? .isSelected : [])
     }
 }
+
+/// "Distance (optional)" with the unit beside it. Used after a run and when logging one.
+struct DistanceField: View {
+    @Binding var text: String
+    let unit: DistanceUnit
+    var typing: FocusState<Bool>.Binding
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Theme.Space.m) {
+            Text("Distance (optional)").font(Theme.heading)
+            HStack(spacing: Theme.Space.m) {
+                TextField("If you know it, e.g. 3.2", text: $text)
+                    .focused(typing)
+                    .keyboardType(.decimalPad)
+                    .monospacedDigit()
+                    .fieldStyle()
+                Text(unit.label)
+                    .font(Theme.body)
+                    .foregroundStyle(Theme.secondaryText)
+            }
+        }
+    }
+
+    /// Metres for what was typed, or nil when it's empty or not a sensible distance.
+    static func meters(_ text: String, unit: DistanceUnit) -> Double? {
+        guard let value = Double(text.replacingOccurrences(of: ",", with: ".")), value > 0, value < 100
+        else { return nil }
+        return value * unit.meters
+    }
+}

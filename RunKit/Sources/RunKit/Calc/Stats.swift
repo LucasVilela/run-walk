@@ -9,6 +9,8 @@ public struct Stats: Equatable, Sendable {
     public var longestNonStopSec: Int
     /// Best average pace over runs of 2 km or more.
     public var bestAvgPaceSecPerKm: Double?
+    /// Runs outside the plan. Their time and distance are in the totals too.
+    public var otherRuns = 0
 
     public static let bestPaceMinDistanceM = 2000.0
 
@@ -34,7 +36,8 @@ public struct Stats: Equatable, Sendable {
             totalDistanceM: runs.compactMap(\.distanceM).reduce(0, +),
             totalRunningSec: runs.map(\.runningSec).reduce(0, +),
             longestNonStopSec: longest,
-            bestAvgPaceSecPerKm: bestPace)
+            bestAvgPaceSecPerKm: bestPace,
+            otherRuns: runs.filter(\.isOther).count)
     }
 
     /// Running seconds per program week (index 0 = week 1), 9 bars for the weekly chart.

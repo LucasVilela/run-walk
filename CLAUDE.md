@@ -35,6 +35,9 @@ Never use the trademark "Couch to 5K"; say "a 9-week beginner run/walk plan".
 - Looks (Settings → Look): `App/Looks.swift` defines Calm (default, the brief's palette), Futuristic,
   Bold, Optimized, Sunrise. Every token in `Theme` follows the current look; never hard-code fonts,
   colours or corners. `LookTests` enforce text contrast for every look.
+- Other runs (outside the plan): `RunRecord.isOther` (`workoutId == "other"`). Saved with
+  `RunStore.saveOther`; never touch plan progress, badges, the rest window or the feeling-based coach
+  rules (pain still counts). Timed with `FreeRun` (stopwatch) via `FreeRunSession`.
 - Calm colours from `Theme.swift`: run #FF6B4A, walk #2BB3A3, warm-up/cool-down #6B7A90,
   bg #FAFAF7 / #111315, text #1A1C1E / #F2F2F0. Always show the word, not color alone.
 - Type: system font, monospaced digits. Countdown 96, titles 28, body 17, min 15. Dynamic Type on.

@@ -1,9 +1,10 @@
 import Foundation
 import RunKit
 
-/// What the full-screen flow shows: the active run, then its summary.
+/// What the full-screen flow shows: the active run (a plan run, or an other run), then its summary.
 enum Flow {
     case run(RunSession)
+    case freeRun(FreeRunSession)
     case summary(RunSummary)
 }
 
@@ -48,6 +49,10 @@ final class AppModel {
         if store == nil { problem = "Your data couldn't be opened." }
         reload()
         resumeOffer = attempt { try store?.activeRun() } ?? nil
+        // An other run is a stopwatch: if the app closed during one, it simply carries on.
+        if resumeOffer == nil, let free = attempt({ try store?.activeFreeRun(now: clock()) }) ?? nil {
+            startFreeSession(free)
+        }
     }
 
     /// The real database in Application Support.
@@ -184,6 +189,42 @@ final class AppModel {
         let badges = attempt { try store?.saveFinished(record) } ?? nil
         reload()
         flow = .summary(RunSummary(run: record, newBadges: badges ?? []))
+    }
+
+    // MARK: - Other runs (outside the plan)
+
+    /// Times a run outside the plan.
+    func startFreeRun() {
+        guard flow == nil else { return }
+        startFreeSession(FreeRun(startedAt: clock()))
+    }
+
+    private func startFreeSession(_ run: FreeRun) {
+        guard let settings else { return }
+        let session = FreeRunSession(
+            run: run, settings: settings, cues: reminders == nil ? nil : .shared, widgets: widgets,
+            persist: { [weak self] run in self?.attempt { try self?.store?.saveActiveFree(run, at: Date()) }
+            },
+            finished: { [weak self] record in self?.freeRunFinished(record) },
+            discarded: { [weak self] in self?.discardFreeRun() })
+        flow = .freeRun(session)
+    }
+
+    func freeRunFinished(_ record: RunRecord) {
+        attempt { try store?.saveOther(record, finishingActive: true) }
+        reload()
+        flow = .summary(RunSummary(run: record, newBadges: []))
+    }
+
+    func discardFreeRun() {
+        attempt { try store?.clearActive() }
+        flow = nil
+    }
+
+    /// A run done without the app (or with another app), typed in afterwards.
+    func logRun(_ record: RunRecord) {
+        attempt { try store?.saveOther(record) }
+        reload()
     }
 
     /// The check-in from the summary screen. Closes the flow.

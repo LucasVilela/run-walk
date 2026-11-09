@@ -23,6 +23,7 @@ struct TodayView: View {
             .foregroundStyle(Theme.text)
             .background(Theme.background)
             .navigationTitle("Today")
+            .otherRunMenu()
         }
     }
 

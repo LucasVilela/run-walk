@@ -21,8 +21,15 @@ struct RunSummaryView: View {
             VStack(alignment: .leading, spacing: Theme.Space.xl) {
                 header
                 RunStatsCard(run: run, distanceM: enteredDistanceM ?? run.distanceM, unit: unit)
-                if !run.counted { completionChoice }
-                distanceField
+                if run.isOther {
+                    Text("Other runs add to your totals. Your plan stays where it is.")
+                        .font(Theme.body)
+                        .foregroundStyle(Theme.secondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else if !run.counted {
+                    completionChoice
+                }
+                DistanceField(text: $distanceText, unit: unit, typing: $typing)
                 CheckInFields(feeling: $feeling, pain: $pain, notes: $notes, typing: $typing)
             }
             .padding(Theme.padding)
@@ -47,11 +54,13 @@ struct RunSummaryView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: Theme.Space.m) {
-            Image(systemName: run.counted ? "checkmark.circle.fill" : "hand.thumbsup.circle.fill")
-                .font(.system(size: 44))
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(Theme.onColor, Theme.walk)
-                .accessibilityHidden(true)
+            Image(
+                systemName: run.counted || run.isOther ? "checkmark.circle.fill" : "hand.thumbsup.circle.fill"
+            )
+            .font(.system(size: 44))
+            .symbolRenderingMode(.palette)
+            .foregroundStyle(Theme.onColor, Theme.walk)
+            .accessibilityHidden(true)
             Text(celebration)
                 .font(Theme.title)
                 .fixedSize(horizontal: false, vertical: true)
@@ -72,7 +81,8 @@ struct RunSummaryView: View {
     }
 
     private var celebration: String {
-        let title = run.workout?.title ?? "Run"
+        if run.isOther { return "Run saved. Nice work." }
+        let title = run.title
         if !run.counted {
             return run.runningSec > 0
                 ? "Good effort. Every bit of running counts." : "Thanks for getting out there today."
@@ -126,28 +136,7 @@ struct RunSummaryView: View {
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
-    private var distanceField: some View {
-        VStack(alignment: .leading, spacing: Theme.Space.m) {
-            Text("Distance (optional)").font(Theme.heading)
-            HStack(spacing: Theme.Space.m) {
-                TextField("If you know it, e.g. 3.2", text: $distanceText)
-                    .focused($typing)
-                    .keyboardType(.decimalPad)
-                    .monospacedDigit()
-                    .fieldStyle()
-                Text(unit.label)
-                    .font(Theme.body)
-                    .foregroundStyle(Theme.secondaryText)
-            }
-        }
-    }
-
-    private var enteredDistanceM: Double? {
-        guard let value = Double(distanceText.replacingOccurrences(of: ",", with: ".")), value > 0,
-            value < 100
-        else { return nil }
-        return value * unit.meters
-    }
+    private var enteredDistanceM: Double? { DistanceField.meters(distanceText, unit: unit) }
 
     private func save() {
         model.saveCheckIn(

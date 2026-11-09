@@ -139,6 +139,17 @@ public final class RunStore {
         }
     }
 
+    /// Saves a run outside the plan. It never touches plan progress or badges.
+    /// `finishingActive`: it was timed in the app, so its crash-resume state goes too. A run logged by
+    /// hand leaves that alone (a plan run may still be waiting to be resumed).
+    public func saveOther(_ run: RunRecord, finishingActive: Bool = false) throws {
+        precondition(run.isOther, "Plan runs go through saveFinished")
+        try db.transaction {
+            try insert(run)
+            if finishingActive { try clearActive() }
+        }
+    }
+
     /// "Count it anyway" for a run under 80%. A run that never reached the main block has nothing to count.
     @discardableResult
     public func countAnyway(runId: String) throws -> [Badge] {
@@ -277,16 +288,42 @@ public final class RunStore {
         guard var active = try? JSONDecoder().decode(ActiveRun.self, from: Data(json.utf8)),
             active.engine.phase == .running || active.engine.phase == .paused
         else {
-            try clearActive()
+            // An other run in progress lives in the same row; leave it for `activeFreeRun()`.
+            if (try? JSONDecoder().decode(SavedFreeRun.self, from: Data(json.utf8))) == nil {
+                try clearActive()
+            }
             return nil
         }
         if let savedAt = row.date("savedAt") { active.engine.suspend(at: savedAt) }
         return active
     }
 
+    /// An other run in progress shares the crash-resume row with plan runs (one run at a time).
+    public func saveActiveFree(_ run: FreeRun, at date: Date) throws {
+        let json = String(decoding: try JSONEncoder().encode(SavedFreeRun(freeRun: run)), as: UTF8.self)
+        try db.run(
+            "INSERT OR REPLACE INTO active_run (id, state, savedAt) VALUES (1, ?, ?)",
+            [SQLValue(json), SQLValue(date)])
+    }
+
+    /// The other run still going when the app closed, restored as of `now` (see `FreeRun.restore`).
+    public func activeFreeRun(now: Date) throws -> FreeRun? {
+        guard let row = try db.query("SELECT state, savedAt FROM active_run WHERE id = 1").first,
+            let json = row.text("state"),
+            var run = (try? JSONDecoder().decode(SavedFreeRun.self, from: Data(json.utf8)))?.freeRun
+        else { return nil }
+        run.restore(savedAt: row.date("savedAt") ?? now, now: now)
+        return run
+    }
+
     public func clearActive() throws {
         try db.run("DELETE FROM active_run")
     }
+}
+
+/// The crash-resume row's shape for an other run: a distinct key, so it never decodes as `ActiveRun`.
+private struct SavedFreeRun: Codable {
+    var freeRun: FreeRun
 }
 
 extension RunRecord {

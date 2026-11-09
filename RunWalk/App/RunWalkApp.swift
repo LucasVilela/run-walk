@@ -74,13 +74,14 @@ struct RootView: View {
     }
 }
 
-/// Run → Summary without dismissing the cover in between.
+/// Run (or other run) → Summary without dismissing the cover in between.
 private struct FlowView: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
         switch model.flow {
         case .run(let session): RunView(session: session)
+        case .freeRun(let session): FreeRunView(session: session)
         case .summary(let summary): RunSummaryView(summary: summary)
         case nil: Theme.background.ignoresSafeArea()
         }

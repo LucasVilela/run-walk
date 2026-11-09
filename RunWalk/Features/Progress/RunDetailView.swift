@@ -28,7 +28,10 @@ struct RunDetailView: View {
                     .font(Theme.body)
                     .foregroundStyle(Theme.secondaryText)
                 RunStatsCard(run: run, distanceM: run.distanceM, unit: unit)
-                if !run.counted {
+                if run.isOther {
+                    Text("Outside the plan: it adds to your totals, not to your plan.")
+                        .font(Theme.body).foregroundStyle(Theme.secondaryText)
+                } else if !run.counted {
                     Text("Not counted: \(Int(run.completionPct))% of the run.")
                         .font(Theme.body).foregroundStyle(Theme.secondaryText)
                 }
@@ -41,7 +44,7 @@ struct RunDetailView: View {
         .scrollDismissesKeyboard(.interactively)
         .foregroundStyle(Theme.text)
         .background(Theme.background)
-        .navigationTitle(run.workout?.title ?? "Run")
+        .navigationTitle(run.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {

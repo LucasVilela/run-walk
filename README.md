@@ -61,6 +61,14 @@ Add a look by adding a case to `RunWalk/App/Looks.swift`.
 - The app shares a small snapshot with the widget extension through the app group
   `group.com.lucasvilela.runwalk` (`Shared/WidgetShared.swift`).
 
+## Other runs
+
+Runs outside the 9-week plan, from the **+** on Today and Progress: timed in the app (a stopwatch,
+`RunKit/Engine/FreeRun.swift`, with a spoken time check every 5 minutes) or logged by hand. They are
+stored in `runs` with `workoutId = "other"` (no schema change), add to history, day by day and totals,
+and never move the plan, earn badges or start the rest window. An other run still going when the app
+closes carries on when it reopens.
+
 ## How it's built
 
 ```

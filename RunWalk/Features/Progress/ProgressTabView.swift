@@ -26,6 +26,7 @@ struct ProgressTabView: View {
             .foregroundStyle(Theme.text)
             .background(Theme.background)
             .navigationTitle("Progress")
+            .otherRunMenu()
             .navigationDestination(for: RunRecord.self) { RunDetailView(run: $0) }
         }
     }
@@ -75,23 +76,28 @@ struct ProgressTabView: View {
     }
 }
 
-/// Runs done, distance, running time, longest non-stop run and best pace.
+/// Runs done, other runs (if any), distance, running time, longest non-stop run and best pace.
 private struct StatsGridCard: View {
     let stats: Stats
     let unit: DistanceUnit
 
     var body: some View {
-        let items = [
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), alignment: .leading)], spacing: Theme.Space.l) {
+            ForEach(items, id: \.0) { StatValue(label: $0.0, value: $0.1) }
+        }
+        .card()
+    }
+
+    private var items: [(String, String)] {
+        var items = [
             ("Runs done", "\(stats.runsDone) / \(Program.workouts.count)"),
             ("Distance", Format.distance(meters: stats.totalDistanceM, unit: unit)),
             ("Running time", Format.clock(stats.totalRunningSec)),
             ("Longest non-stop", Format.minutes(stats.longestNonStopSec)),
             ("Best avg pace", Format.pace(secondsPerKm: stats.bestAvgPaceSecPerKm, unit: unit)),
         ]
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), alignment: .leading)], spacing: Theme.Space.l) {
-            ForEach(items, id: \.0) { StatValue(label: $0.0, value: $0.1) }
-        }
-        .card()
+        if stats.otherRuns > 0 { items.insert(("Other runs", "\(stats.otherRuns)"), at: 1) }
+        return items
     }
 }
 
@@ -102,7 +108,7 @@ private struct HistoryRow: View {
     var body: some View {
         HStack(spacing: Theme.Space.m) {
             VStack(alignment: .leading, spacing: Theme.Space.xs) {
-                Text(run.workout?.title ?? "Run").font(Theme.body.weight(.semibold))
+                Text(run.title).font(Theme.body.weight(.semibold))
                 Text(details).font(Theme.small).foregroundStyle(Theme.secondaryText)
             }
             Spacer(minLength: 0)
@@ -121,7 +127,7 @@ private struct HistoryRow: View {
         var parts = [run.startedAt.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))]
         parts.append(Format.clock(run.movingSec))
         if let distance = run.distanceM { parts.append(Format.distance(meters: distance, unit: unit)) }
-        if !run.counted { parts.append("not counted") }
+        if !run.counted && !run.isOther { parts.append("not counted") }
         return parts.joined(separator: " · ")
     }
 }

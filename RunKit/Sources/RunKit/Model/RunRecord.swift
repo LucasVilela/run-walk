@@ -50,6 +50,33 @@ public struct RunRecord: Codable, Hashable, Sendable, Identifiable {
 
     public var workout: Workout? { Program.workout(id: workoutId) }
 
-    /// "Count it anyway" is offered for runs under 80% that got into the main block at all.
-    public var canCountAnyway: Bool { !counted && completionPct >= 1 }
+    /// "Count it anyway" is offered for plan runs under 80% that got into the main block at all.
+    public var canCountAnyway: Bool { !isOther && !counted && completionPct >= 1 }
+
+    // MARK: - Other runs
+
+    /// The `workoutId` of a run outside the plan (timed in the app or logged by hand).
+    public static let otherWorkoutId = "other"
+
+    /// A run outside the 9-week plan. It shows in your history and totals but never moves the plan.
+    public var isOther: Bool { workoutId == Self.otherWorkoutId }
+
+    public var title: String { workout?.title ?? (isOther ? "Other run" : "Run") }
+
+    /// An other run: all of its time counts as running. Never counted towards the plan.
+    public static func other(
+        id: String = UUID().uuidString, startedAt: Date, durationSec: Int, distanceM: Double? = nil,
+        feeling: Feeling? = nil, pain: Bool = false, notes: String = ""
+    ) -> RunRecord {
+        let seconds = max(0, durationSec)
+        return RunRecord(
+            id: id, workoutId: otherWorkoutId, startedAt: startedAt,
+            endedAt: startedAt.addingTimeInterval(TimeInterval(seconds)), movingSec: seconds,
+            runningSec: seconds,
+            distanceM: distanceM,
+            avgPaceSecPerKm: distanceM.flatMap {
+                Pace.secondsPerKm(movingSec: Double(seconds), distanceM: $0)
+            },
+            completionPct: 0, counted: false, feeling: feeling, pain: pain, notes: notes, mode: .treadmill)
+    }
 }

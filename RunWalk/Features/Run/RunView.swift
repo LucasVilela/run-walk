@@ -181,7 +181,7 @@ struct RunView: View {
 }
 
 /// A round icon button with its word underneath.
-private struct RoundControl: View {
+struct RoundControl: View {
     let systemImage: String
     let title: String
     let size: CGFloat

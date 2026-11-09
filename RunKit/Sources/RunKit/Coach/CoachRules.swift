@@ -78,9 +78,11 @@ public enum Coach {
         if let gap = gap(runs, context) { list.append(gap) }
         // No "keep going" nudges on a day pain was flagged.
         guard !painToday else { return list }
-        if let hard = hardRuns(runs) { list.append(hard) }
+        // How plan runs felt steers the plan; other runs don't.
+        let planRuns = runs.filter { !$0.isOther }
+        if let hard = hardRuns(planRuns) { list.append(hard) }
         if let jump = bigJump(context) { list.append(jump) }
-        if let easy = easyStreak(runs) { list.append(easy) }
+        if let easy = easyStreak(planRuns) { list.append(easy) }
         return list
     }
 

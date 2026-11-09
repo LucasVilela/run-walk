@@ -41,6 +41,10 @@ menu in Settings. Neither exists in Release builds.
    tap the widget row → Run-Walk. During a run it shows the current segment and its countdown;
    otherwise your next run.
 6. **Day by day.** Plan → Day by day shows every day: what you ran, rest days, and what's planned.
+7. **Other runs.** Tap **+** on Today or Progress. "Time a run now" is a stopwatch with a spoken time
+   check every 5 minutes (and a count-up on the lock screen); "Log a run you did" takes a start time,
+   duration and optional distance. Other runs show in your history, day by day and totals, but never
+   move the plan or earn badges.
 
 ## Troubleshooting
 

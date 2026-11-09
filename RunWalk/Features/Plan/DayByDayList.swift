@@ -149,6 +149,10 @@ private struct DayRow: View {
 
     @ViewBuilder private var icon: some View {
         switch content {
+        case .ran(let run, _) where run.isOther:
+            Image(systemName: "plus.circle.fill")
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(Theme.onColor, Theme.easy)
         case .ran(let run, _):
             Image(systemName: run.counted ? "checkmark.circle.fill" : "circle.dashed")
                 .symbolRenderingMode(.palette)
@@ -162,7 +166,7 @@ private struct DayRow: View {
 
     private var title: String {
         switch content {
-        case .ran(let run, _): run.workout?.title ?? "Run"
+        case .ran(let run, _): run.title
         case .planned(let workout, _): workout.title
         case .rest: "Rest"
         }
@@ -174,7 +178,7 @@ private struct DayRow: View {
             var parts = [Format.clock(run.movingSec)]
             if let distance = run.distanceM { parts.append(Format.distance(meters: distance, unit: unit)) }
             if let feeling = run.feeling { parts.append(feelingText(feeling)) }
-            if !run.counted { parts.append("not counted") }
+            if !run.counted && !run.isOther { parts.append("not counted") }
             return parts.joined(separator: " · ")
         case .planned(_, let seconds):
             return "\(Format.minutes(seconds)) · planned"

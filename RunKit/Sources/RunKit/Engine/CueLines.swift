@@ -106,6 +106,15 @@ public enum CueLines {
         return "\(m) minute\(m == 1 ? "" : "s") \(s) seconds"
     }
 
+    /// The time check during an other run: "ten minutes", "one hour 15 minutes".
+    public static func freeRunTime(minutes: Int) -> String {
+        let h = minutes / 60
+        let m = minutes % 60
+        guard h > 0 else { return spoken(m * 60) }
+        let hours = "\(word(h)) hour\(h == 1 ? "" : "s")"
+        return m == 0 ? hours : "\(hours) \(m) minutes"
+    }
+
     /// "five-minute", "twenty-minute" style for whole minutes.
     static func hyphenatedMinutes(_ seconds: Int) -> String {
         let m = seconds / 60

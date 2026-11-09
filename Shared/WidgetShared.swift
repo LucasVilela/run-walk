@@ -73,6 +73,9 @@ struct WidgetSnapshot: Codable, Equatable, Sendable {
         }
 
         var title: String
+        /// Empty for an other run (a stopwatch with no plan).
         var segments: [Segment]
+
+        var isFree: Bool { segments.isEmpty }
     }
 #endif
