@@ -49,6 +49,7 @@ Never use the trademark "Couch to 5K"; say "a 9-week beginner run/walk plan".
   (✅ done, 🧪 how to test on the phone, ⚠️ open items) and wait for "continue".
 - Ask before: new dependencies, deleting files, schema changes after phase 3.
 - Same error surviving 3 fix attempts → stop and explain.
+- Commits and PRs: no "Co-Authored-By" or "Generated with" attribution lines.
 
 ## Folders
 - `RunKit/Sources/RunKit/{Model,Plan,Engine,Coach,Calc,DB}` + `RunKit/Tests/RunKitTests`
