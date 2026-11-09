@@ -21,8 +21,15 @@ targets:
     platform: iOS
     sources:
       - RunWalk
+      - Shared
     dependencies:
       - package: RunKit
+      - target: RunWalkWidgets
+    entitlements:
+      path: RunWalk/RunWalk.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.lucasvilela.runwalk
     info:
       path: RunWalk/Info.plist
       properties:
@@ -33,12 +40,40 @@ targets:
         ITSAppUsesNonExemptEncryption: false
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        NSSupportsLiveActivities: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.lucasvilela.runwalk
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  RunWalkWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - RunWalkWidgets
+      - Shared
+    dependencies:
+      - package: RunKit
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+      - sdk: ActivityKit.framework
+    entitlements:
+      path: RunWalkWidgets/RunWalkWidgets.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.lucasvilela.runwalk
+    info:
+      path: RunWalkWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Run-Walk
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lucasvilela.runwalk.widgets
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: YES
   RunWalkTests:
     type: bundle.unit-test
     platform: iOS

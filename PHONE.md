@@ -36,7 +36,11 @@ menu in Settings. Neither exists in Release builds.
    and the voice carries on from where the run is.
 4. **Distance.** There's no GPS. If you know your distance (treadmill display, a known route), type it
    on the run summary and the pace is worked out for you.
-5. **Day by day.** Plan → Day by day shows every day: what you ran, rest days, and what's planned.
+5. **Lock screen.** During a run a Live Activity shows the time left and a filling bar on the lock
+   screen and Dynamic Island. To add the widget: long-press the lock screen → Customise → Lock Screen →
+   tap the widget row → Run-Walk. During a run it shows the current segment and its countdown;
+   otherwise your next run.
+6. **Day by day.** Plan → Day by day shows every day: what you ran, rest days, and what's planned.
 
 ## Troubleshooting
 

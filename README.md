@@ -51,6 +51,16 @@ pastels, rounded). They change colours, type, corners and light/dark behaviour o
 run, walk and warm-up distinct and passes the contrast tests in `RunWalkTests/ThemeTests.swift`.
 Add a look by adding a case to `RunWalk/App/Looks.swift`.
 
+## Lock screen
+
+- **Live Activity** during every run (lock screen and Dynamic Island): workout time left and a progress
+  bar, animated by iOS itself, so they stay right while the app sleeps.
+- **Widgets** (lock screen: rectangular, circular, inline; home screen: small): the current segment
+  and its countdown during a run, switching at the right moments from a timeline written at run start;
+  otherwise the next run and progress.
+- The app shares a small snapshot with the widget extension through the app group
+  `group.com.lucasvilela.runwalk` (`Shared/WidgetShared.swift`).
+
 ## How it's built
 
 ```

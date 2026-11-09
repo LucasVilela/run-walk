@@ -33,13 +33,15 @@ final class AppModel {
     @ObservationIgnored private let clock: () -> Date
     @ObservationIgnored let calendar: Calendar
     @ObservationIgnored private let reminders: ReminderNotifications?
+    @ObservationIgnored private let widgets: WidgetBridge?
 
     init(
         store: RunStore?, calendar: Calendar = .autoupdatingCurrent, clock: @escaping () -> Date = Date.init,
-        reminders: ReminderNotifications? = nil
+        reminders: ReminderNotifications? = nil, widgets: WidgetBridge? = nil
     ) {
         self.store = store
         self.reminders = reminders
+        self.widgets = widgets
         self.calendar = calendar
         self.clock = clock
         now = clock()
@@ -51,7 +53,7 @@ final class AppModel {
     /// The real database in Application Support.
     static func live() -> AppModel {
         let url = URL.applicationSupportDirectory.appending(path: "RunWalk/runwalk.sqlite")
-        return AppModel(store: try? RunStore.open(at: url), reminders: .shared)
+        return AppModel(store: try? RunStore.open(at: url), reminders: .shared, widgets: .shared)
     }
 
     /// Reloads everything, recomputes dates and reschedules reminders (on every app open and change).
@@ -66,6 +68,11 @@ final class AppModel {
             badges = try store.badges()
             lastCompletedAt = try store.lastCompletedAt()
             dismissals = try store.dismissals()
+        }
+        if let widgets {
+            let next = forecast.first
+            widgets.updatePlan(
+                next: next.map { ($0.workout, $0.date, totalSeconds($0.workout) / 60) }, runsDone: runsDone)
         }
         if let settings, let reminders {
             reminders.replace(
@@ -155,6 +162,7 @@ final class AppModel {
         if reminders != nil { Task { await CueNotifications.shared.requestPermissionIfNeeded() } }
         let session = RunSession(
             engine: engine, settings: settings, notifications: reminders == nil ? nil : .shared,
+            widgets: widgets,
             persist: { [weak self] active in self?.attempt { try self?.store?.saveActive(active, at: Date()) }
             },
             finished: { [weak self] engine in self?.runFinished(engine, mode: .treadmill) })

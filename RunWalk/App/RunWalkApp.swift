@@ -9,6 +9,7 @@ struct RunWalkApp: App {
 
     init() {
         CueNotifications.shared.install()
+        WidgetBridge.shared.install()
     }
 
     var body: some Scene {

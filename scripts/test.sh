@@ -6,7 +6,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 echo "▸ Lint (swift format)"
-swift format lint --strict --recursive RunKit/Sources RunKit/Tests RunWalk RunWalkTests
+swift format lint --strict --recursive RunKit/Sources RunKit/Tests RunWalk RunWalkTests RunWalkWidgets Shared
 
 echo "▸ RunKit tests"
 (cd RunKit && swift test 2>&1 | grep -E "✘|error:|Test run with")

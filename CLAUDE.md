@@ -55,4 +55,6 @@ Never use the trademark "Couch to 5K"; say "a 9-week beginner run/walk plan".
   (`@Observable`, injected clock + calendar), full-screen `Flow` = run → summary.
 - `RunWalk/{App,Services,Features,Components,Resources}`; shared views live in Components
   (Styles: `.card()`, `ChoiceChip`, `bottomBar`; RunParts; SettingsControls). Reuse before adding.
+- `RunWalkWidgets/` (widget extension: lock-screen widgets + Live Activity) and `Shared/` (compiled into
+  both: app-group snapshot + `RunActivityAttributes`). App side: `Services/WidgetBridge.swift`.
 - `RunWalkTests/`, `scripts/`. README.md = run/test/build; PHONE.md = on-device steps.

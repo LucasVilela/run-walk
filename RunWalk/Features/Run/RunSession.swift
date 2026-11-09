@@ -13,6 +13,7 @@ final class RunSession {
     @ObservationIgnored private var clock: ScaledClock
     @ObservationIgnored private let cues: CuePlayer
     @ObservationIgnored private let notifications: CueNotifications?
+    @ObservationIgnored private let widgets: WidgetBridge?
     @ObservationIgnored private var loop: Task<Void, Never>?
     @ObservationIgnored private var lastTickReal = Date()
     @ObservationIgnored private var lastSaveReal = Date.distantPast
@@ -26,7 +27,7 @@ final class RunSession {
 
     init(
         engine: RunEngine, settings: UserSettings, cues: CuePlayer = .shared,
-        notifications: CueNotifications? = .shared,
+        notifications: CueNotifications? = .shared, widgets: WidgetBridge? = nil,
         persist: @escaping (ActiveRun) -> Void = { _ in },
         finished: @escaping (RunEngine) -> Void = { _ in }
     ) {
@@ -36,6 +37,7 @@ final class RunSession {
         snapshot = engine.snapshot(at: now)
         self.cues = cues
         self.notifications = notifications
+        self.widgets = widgets
         self.persist = persist
         self.finished = finished
         cues.options = .init(voice: settings.voiceOn, beeps: settings.beepsOn, haptics: settings.hapticsOn)
@@ -52,6 +54,7 @@ final class RunSession {
         apply(engine.phase == .idle ? engine.start(at: now) : engine.resync(at: now), save: true)
         if engine.phase == .paused {
             notifications?.cancelAll(plan: plan)
+            updateWidgets()
         } else {
             reschedule()
         }
@@ -71,12 +74,13 @@ final class RunSession {
         } else {
             apply(engine.pause(at: now), save: true)
             notifications?.cancelAll(plan: plan)
+            updateWidgets()
         }
     }
 
     func skip() {
         apply(engine.skip(at: now), save: true)
-        if engine.phase == .running { reschedule() }
+        if engine.phase == .running { reschedule() } else { updateWidgets() }
     }
 
     func end() { apply(engine.end(at: now), save: true) }
@@ -85,6 +89,7 @@ final class RunSession {
         loop?.cancel()
         loop = nil
         notifications?.cancelAll(plan: plan)
+        widgets?.runEnded()
     }
 
     /// Dev only: ×1, ×10, ×60.
@@ -123,7 +128,14 @@ final class RunSession {
         }
     }
 
+    /// Also refreshes the lock-screen widget and Live Activity, which follow the same timeline.
     private func reschedule() {
         notifications?.schedule(plan: plan, position: engine.position(at: now), speed: speed)
+        updateWidgets()
+    }
+
+    private func updateWidgets() {
+        guard engine.phase == .running || engine.phase == .paused else { return }
+        widgets?.runChanged(engine, now: now, speed: speed)
     }
 }
