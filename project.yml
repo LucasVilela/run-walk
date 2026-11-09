@@ -1,0 +1,64 @@
+name: RunWalk
+options:
+  bundleIdPrefix: com.lucasvilela
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+packages:
+  RunKit:
+    path: RunKit
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    MARKETING_VERSION: "0.1"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: 26TW9454CR
+    CODE_SIGN_STYLE: Automatic
+targets:
+  RunWalk:
+    type: application
+    platform: iOS
+    sources:
+      - RunWalk
+    dependencies:
+      - package: RunKit
+    info:
+      path: RunWalk/Info.plist
+      properties:
+        CFBundleDisplayName: Run-Walk
+        CFBundleDevelopmentRegion: en-AU
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        ITSAppUsesNonExemptEncryption: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lucasvilela.runwalk
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  RunWalkTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - RunWalkTests
+    dependencies:
+      - target: RunWalk
+      - package: RunKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lucasvilela.runwalk.tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/RunWalk.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RunWalk
+        BUNDLE_LOADER: $(TEST_HOST)
+schemes:
+  RunWalk:
+    build:
+      targets:
+        RunWalk: all
+    test:
+      targets:
+        - package: RunKit/RunKitTests
+        - RunWalkTests

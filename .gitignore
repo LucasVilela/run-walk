@@ -1,0 +1,8 @@
+.DS_Store
+build/
+build-test/
+build-*/
+RunWalk.xcodeproj/
+RunKit/.build/
+RunKit/.swiftpm/
+xcuserdata/
