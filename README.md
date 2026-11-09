@@ -10,16 +10,26 @@ Native SwiftUI, iOS 26, iPhone only. No third-party dependencies.
 
 ```bash
 brew install xcodegen          # once
-cd ~/Developer/run-walk
+git clone https://github.com/LucasVilela/run-walk.git && cd run-walk
 xcodegen generate              # after adding or removing files
 open RunWalk.xcodeproj
 ```
 
-Pick a simulator or your iPhone and press ⌘R. Putting it on your own phone (Developer Mode, signing,
+Needs Xcode 26 or later. Pick a simulator and press ⌘R; the simulator needs no signing changes. Putting it on your own phone (Developer Mode, signing,
 locked-screen checks) is covered step by step in [PHONE.md](PHONE.md).
 
 Debug builds add a ×1 / ×10 / ×60 speed button on the Run screen and a "Try any workout (dev)" menu
 in Settings, so a whole workout can be tested in seconds. Neither exists in Release builds.
+
+### On your own iPhone
+
+The project is set up for the author's Apple developer team. To sign it with yours, change these in
+`project.yml` (then run `xcodegen generate`):
+
+- `DEVELOPMENT_TEAM`: your team ID (Xcode → Settings → Accounts).
+- `bundleIdPrefix` and every `com.lucasvilela.runwalk…` bundle ID: a prefix of your own.
+- The app group `group.com.lucasvilela.runwalk`, here and in `RunWalk/RunWalk.entitlements`,
+  `RunWalkWidgets/RunWalkWidgets.entitlements` and `Shared/WidgetShared.swift`.
 
 ## Test it
 
@@ -100,3 +110,15 @@ Key rules (more in [CLAUDE.md](CLAUDE.md)):
 
 No accounts, analytics or tracking SDKs, no location, and no network code at all. Runs and settings live in a
 SQLite file in the app's Application Support folder; Settings → Your data exports them as JSON and CSV.
+
+## Contributing
+
+Issues and pull requests are welcome. Please run `./scripts/test.sh` before sending a change, and
+keep to the product principles in [CLAUDE.md](CLAUDE.md): calm, private, eyes-free, no extra screens.
+
+This app is not affiliated with any official running programme, and it is not medical advice. Check
+with a doctor before starting to run if you have any health concerns.
+
+## License
+
+[MIT](LICENSE) © 2026 Lucas Vilela

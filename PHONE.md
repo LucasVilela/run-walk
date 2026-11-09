@@ -5,7 +5,7 @@ Native Swift needs no Expo Go or dev-client: Xcode builds the app straight onto 
 ## One-time setup
 
 1. **Xcode account.** Xcode → Settings → Accounts → sign in with your Apple ID. The project already
-   uses your team (`26TW9454CR`, same as Receipt Calc).
+   uses the author's team (`26TW9454CR`); to use yours, see "On your own iPhone" in the README.
 2. **Developer Mode on the phone.** iPhone → Settings → Privacy & Security → Developer Mode → On.
    The phone restarts; confirm "Turn On" after it boots.
 3. **Connect once by cable.** Plug the iPhone into the Mac, unlock it, tap **Trust**.
@@ -15,7 +15,7 @@ Native Swift needs no Expo Go or dev-client: Xcode builds the app straight onto 
 ## Build and run
 
 ```bash
-cd ~/Developer/run-walk && xcodegen generate && open RunWalk.xcodeproj
+cd run-walk && xcodegen generate && open RunWalk.xcodeproj
 ```
 
 In Xcode: scheme **RunWalk**, pick your iPhone in the device menu at the top, press **⌘R**.
